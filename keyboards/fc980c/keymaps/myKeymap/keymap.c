@@ -106,6 +106,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
 
     if (isMac) return true;
 
+    // 以下日本語WIN環境用の変換処理
     if (record->event.pressed) {
         lshift = keyboard_report->mods & MOD_BIT(KC_LSFT);
         rshift = keyboard_report->mods & MOD_BIT(KC_RSFT);
