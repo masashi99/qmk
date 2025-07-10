@@ -20,11 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #define MY_TAPPING_TERM 40
 
-static bool kcGRVflg = false;
-static long int r_delay = 0;
-static bool shift = false;
 static bool gui = false;
-static bool isEnableRepeat = false;
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -61,46 +57,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
     #endif
 
     if (record->event.pressed) {
-        shift = keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT);
         gui = keyboard_report->mods & MOD_BIT(KC_LGUI) || keyboard_report->mods & MOD_BIT(KC_RGUI);
     }
 
     switch (keycode) {
         case KC_GRV:
-            if (record->event.pressed) {
-                kcGRVflg = true;
-                if (shift) {
-                    tap_code(KC_EQL);
-                }
-                else if (gui) {
-                    unregister_code(KC_LGUI);
-                    unregister_code(KC_RGUI);
-                    tap_code(KC_ESC);
-                    register_code(KC_LGUI);
-                }
-                else {
-                    register_code(KC_LSFT);
-                    tap_code(KC_LBRC);
-                    unregister_code(KC_LSFT);
-                }
+            if (record->event.pressed && gui) {
+                unregister_code(KC_LGUI);
+                unregister_code(KC_RGUI);
+                tap_code(KC_ESC);
+                register_code(KC_LGUI);
                 return false;
-            }
-            else {
-                kcGRVflg = false;
-                r_delay = 0;
             }
             break;
     }
     return true;
-}
-
-void matrix_scan_user(void) {
-    shift = keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT);
-    isEnableRepeat = r_delay > MY_TAPPING_TERM && r_delay % 6 == 0;
-    if (kcGRVflg) {
-        if (isEnableRepeat && shift) {
-            tap_code(KC_EQL);
-        }
-        r_delay++;
-    }
 }
